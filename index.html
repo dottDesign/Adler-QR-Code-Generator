@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Adler University QR Builder</title>
+  <style>
+    :root{
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --muted2: #64748b;
+      --border: #e2e8f0;
+      --focus: #94a3b8;
+      --shadow: 0 10px 30px rgba(2,6,23,.08);
+      --radius: 14px;
+
+      --brand: #8b0e10;        /* Adler red-ish */
+      --brandDark: #6f0b0c;
+      --btnText: #ffffff;
+
+      --chipBg: #f1f5f9;
+      --chipText: #334155;
+
+      --okBg: #ecfdf5;
+      --okText: #065f46;
+
+      --warnBg: #fff7ed;
+      --warnText: #9a3412;
+
+      --errBg: #fef2f2;
+      --errText: #991b1b;
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .wrap{ max-width: 1040px; margin: 0 auto; padding: 28px 16px 48px; }
+
+    /* Header */
+    .topbar{
+      display:flex; align-items:center; gap:12px;
+      margin-bottom: 14px;
+    }
+    .mark{
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--brand);
+      display:grid; place-items:center;
+      color:#fff; font-weight:800;
+    }
+    .titleBlock{ line-height: 1.15; }
+    .org{ font-weight: 800; font-size: 16px; }
+    .dept{ color: var(--muted); font-weight: 600; font-size: 13px; margin-top: 2px; }
+
+    h1{ margin: 10px 0 6px; font-size: 28px; letter-spacing: -.02em; }
+    .sub{ margin: 0 0 18px; color: var(--muted); }
+
+    /* Layout */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items:start;
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .sectionTitle{
+      font-weight: 800;
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    label{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 12px 0 6px;
+    }
+    .help{
+      font-size: 12px;
+      color: var(--muted2);
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+
+    textarea, input, select{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      outline:none;
+      font-size: 14px;
+    }
+    textarea{ min-height: 120px; resize: vertical; }
+    textarea:focus, input:focus, select:focus{
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(148,163,184,.30);
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 520px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    button{
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button.primary{
+      background: var(--brand);
+      border-color: var(--brand);
+      color: var(--btnText);
+    }
+    button.primary:hover{ background: var(--brandDark); border-color: var(--brandDark); }
+    button:hover{ box-shadow: 0 8px 18px rgba(2,6,23,.08); }
+    button:disabled{ opacity: .55; cursor: not-allowed; box-shadow: none; }
+
+    .chips{
+      display:flex; flex-wrap: wrap; gap: 8px;
+      margin-top: 10px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--chipBg);
+      color: var(--chipText);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .chip code{ font-family: var(--mono); font-weight: 800; }
+
+    .status{
+      margin-top: 10px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .statusPill{
+      display:inline-flex;
+      align-items:center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--border);
+      background: var(--chipBg);
+      color: var(--chipText);
+    }
+    .statusPill.ok{ background: var(--okBg); color: var(--okText); border-color: rgba(6,95,70,.20); }
+    .statusPill.warn{ background: var(--warnBg); color: var(--warnText); border-color: rgba(154,52,18,.20); }
+    .statusPill.err{ background: var(--errBg); color: var(--errText); border-color: rgba(153,27,27,.20); }
+
+    /* Preview */
+    .previewBox{
+      display:grid;
+      place-items:center;
+      min-height: 320px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: #fbfdff;
+      padding: 16px;
+    }
+    #qrWrap canvas, #qrWrap img{ display:block; max-width: 100%; height:auto; }
+
+    .outputArea{
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      padding: 12px;
+    }
+    .outputLabel{
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+    .foot{
+      margin-top: 14px;
+      color: var(--muted2);
+      font-size: 12px;
+    }
+    .foot strong{ color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="mark">A</div>
+      <div class="titleBlock">
+        <div class="org">Adler University</div>
+        <div class="dept">Digital & Web Tools</div>
+      </div>
+    </div>
+
+    <h1>QR Builder</h1>
+    <p class="sub">Generate QR codes for print and digital use. Copy or download as PNG.</p>
+
+    <div class="grid">
+      <!-- LEFT: Inputs -->
+      <div class="card">
+        <div class="sectionTitle">QR details</div>
+
+        <label for="data">Text or URL</label>
+        <textarea id="data" placeholder="https://adler.edu or any text..."></textarea>
+        <div class="help">Tip: For print, use short URLs and test on multiple devices before publishing.</div>
+
+        <div class="row">
+          <div>
+            <label for="size">Size (px)</label>
+            <input id="size" type="number" min="128" max="2048" step="32" value="1024" />
+            <div class="help">Common: 512 (web), 1024 (print export).</div>
+          </div>
+          <div>
+            <label for="ecc">Error Correction</label>
+            <select id="ecc">
+              <option value="L">L (7% recovery)</option>
+              <option value="M" selected>M (15% recovery)</option>
+              <option value="Q">Q (25% recovery)</option>
+              <option value="H">H (30% recovery)</option>
+            </select>
+            <div class="help">If you add a center logo later, set to <strong>H</strong>.</div>
+          </div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Mode: <code id="metaMode">n/a</code></span>
+          <span class="chip">Length: <code id="metaLen">0</code></span>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="generate">Generate QR</button>
+          <button id="clear">Clear</button>
+          <button id="download" disabled>Download PNG</button>
+          <button id="copy" disabled>Copy Image</button>
+        </div>
+
+        <div class="foot">
+          <strong>Internal utility</strong> · Keep conventions consistent for campaign assets and naming.
+        </div>
+      </div>
+
+      <!-- RIGHT: Preview -->
+      <div class="card">
+        <div class="sectionTitle">Preview</div>
+
+        <div class="previewBox" aria-live="polite">
+          <div id="qrWrap"></div>
+        </div>
+
+        <div class="status">
+          <span id="statusPill" class="statusPill">Ready</span>
+          <span class="help" id="statusText" style="margin:0;">Your QR will appear here.</span>
+        </div>
+
+        <div class="outputArea">
+          <div class="outputLabel">Export guidance</div>
+          <div class="help" style="margin:0;">
+            For print, export at 1024 px or higher and ensure sufficient quiet zone on the final layout.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- qrcodejs (davidshimjs). jQuery is NOT required by this library. -->
+  <script src="qrcode.js"></script>
+
+  <script>
+    const els = {
+      data: document.getElementById("data"),
+      size: document.getElementById("size"),
+      ecc: document.getElementById("ecc"),
+      qrWrap: document.getElementById("qrWrap"),
+      generate: document.getElementById("generate"),
+      clear: document.getElementById("clear"),
+      download: document.getElementById("download"),
+      copy: document.getElementById("copy"),
+      statusPill: document.getElementById("statusPill"),
+      statusText: document.getElementById("statusText"),
+      metaMode: document.getElementById("metaMode"),
+      metaLen: document.getElementById("metaLen"),
+    };
+
+    function setStatus(kind, pillText, detailText) {
+      els.statusPill.className = "statusPill" + (kind ? " " + kind : "");
+      els.statusPill.textContent = pillText;
+      els.statusText.textContent = detailText || "";
+    }
+
+    function inferMode(value) {
+      try {
+        const u = new URL(value);
+        if (u.protocol === "http:" || u.protocol === "https:") return "URL";
+      } catch (_) {}
+      return "Text";
+    }
+
+    function clamp(n, min, max) {
+      n = parseInt(n, 10);
+      if (Number.isNaN(n)) return min;
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function supportsClipboardImage() {
+      return !!(navigator.clipboard && window.ClipboardItem);
+    }
+
+    function qrcodejsLevel(ecc) {
+      const lvl = (window.QRCode && window.QRCode.CorrectLevel) ? window.QRCode.CorrectLevel : null;
+      if (!lvl) return null;
+      return lvl[ecc] ?? lvl.M;
+    }
+
+    function clearQR() {
+      els.qrWrap.innerHTML = "";
+    }
+
+    function getRenderedCanvasOrImg() {
+      return els.qrWrap.querySelector("canvas, img");
+    }
+
+    async function renderQR() {
+      const value = els.data.value.trim();
+      const size = clamp(els.size.value || "512", 128, 2048);
+      const ecc = els.ecc.value;
+
+      els.size.value = size;
+      els.metaLen.textContent = String(value.length);
+      els.metaMode.textContent = inferMode(value);
+
+      if (!value) {
+        clearQR();
+        els.download.disabled = true;
+        els.copy.disabled = true;
+        setStatus("warn", "Waiting", "Enter text or a URL to generate a QR.");
+        return;
+      }
+
+      if (!window.QRCode || !window.QRCode.CorrectLevel) {
+        clearQR();
+        els.download.disabled = true;
+        els.copy.disabled = true;
+        setStatus("err", "Library missing", "qrcode.js not loaded. Ensure it is next to index.html.");
+        return;
+      }
+
+      setStatus("", "Working", "Generating QR...");
+      try {
+        clearQR();
+
+        new QRCode(els.qrWrap, {
+          text: value,
+          width: size,
+          height: size,
+          correctLevel: qrcodejsLevel(ecc)
+        });
+
+        els.download.disabled = false;
+        els.copy.disabled = !supportsClipboardImage();
+        setStatus("ok", "Done", "QR generated successfully.");
+      } catch (err) {
+        clearQR();
+        els.download.disabled = true;
+        els.copy.disabled = true;
+        setStatus("err", "Error", "Unable to generate QR. Check console for details.");
+        console.error(err);
+      }
+    }
+
+    function downloadPNG() {
+      const node = getRenderedCanvasOrImg();
+      if (!node) return;
+
+      let dataUrl = "";
+      if (node.tagName.toLowerCase() === "canvas") dataUrl = node.toDataURL("image/png");
+      else dataUrl = node.src;
+
+      const link = document.createElement("a");
+      link.download = "qr-code.png";
+      link.href = dataUrl;
+      link.click();
+    }
+
+    async function copyImage() {
+      if (!supportsClipboardImage()) {
+        setStatus("warn", "Copy unavailable", "This browser does not support image clipboard.");
+        return;
+      }
+
+      const node = getRenderedCanvasOrImg();
+      if (!node) return;
+
+      try {
+        let blob;
+        if (node.tagName.toLowerCase() === "canvas") {
+          blob = await new Promise(resolve => node.toBlob(resolve, "image/png"));
+        } else {
+          const res = await fetch(node.src);
+          blob = await res.blob();
+        }
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        setStatus("ok", "Copied", "QR image copied to clipboard.");
+      } catch (e) {
+        setStatus("err", "Copy failed", "Could not copy image to clipboard.");
+        console.error(e);
+      }
+    }
+
+    els.generate.addEventListener("click", renderQR);
+    els.clear.addEventListener("click", () => {
+      els.data.value = "";
+      els.metaLen.textContent = "0";
+      els.metaMode.textContent = "n/a";
+      clearQR();
+      els.download.disabled = true;
+      els.copy.disabled = true;
+      setStatus("", "Ready", "Your QR will appear here.");
+      els.data.focus();
+    });
+
+    els.download.addEventListener("click", downloadPNG);
+    els.copy.addEventListener("click", copyImage);
+
+    let t = null;
+    els.data.addEventListener("input", () => {
+      clearTimeout(t);
+      t = setTimeout(renderQR, 250);
+    });
+    els.size.addEventListener("change", renderQR);
+    els.ecc.addEventListener("change", renderQR);
+
+    clearQR();
+    setStatus("", "Ready", "Your QR will appear here.");
+  </script>
+</body>
+</html>
